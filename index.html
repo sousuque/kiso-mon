@@ -223,6 +223,32 @@ h3.ans-h.flash-t { outline-color: var(--accent); }
   .chsel { flex: 1 1 12rem; }
 }
 
+/* ---- bookmarks ---- */
+.bm-wrap { position: relative; }
+.bm-btn { display: inline-flex; align-items: center; gap: 6px; }
+.bm-btn .bm-n { font-variant-numeric: tabular-nums; min-width: 1.4em; padding: 0 6px; border-radius: 999px; background: var(--drill-soft); color: var(--drill); font-size: .8em; font-weight: 700; }
+.bm-btn .bm-n:empty { display: none; }
+.bm-star { color: var(--drill); }
+.bm-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(26rem, calc(100vw - 24px)); max-height: min(70vh, 34rem); overflow: auto;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow), 0 12px 32px rgba(0,0,0,.18); z-index: 50; padding: 6px; }
+.bm-panel h2 { font-family: var(--f-display); font-size: .78rem; letter-spacing: .06em; color: var(--muted); margin: 8px 10px 4px; }
+.bm-panel ol { list-style: none; margin: 0; padding: 0; }
+.bm-item { display: flex; align-items: stretch; gap: 2px; border-radius: 8px; }
+.bm-item:hover { background: var(--panel); }
+.bm-go { flex: 1; min-width: 0; display: grid; grid-template-columns: 2.6em 1fr; column-gap: 10px; align-items: center; text-align: left;
+  font: inherit; color: inherit; background: none; border: 0; padding: 8px 10px; cursor: pointer; border-radius: 8px; }
+.bm-go .bm-no { grid-row: span 2; font-family: var(--f-display); font-weight: 700; font-variant-numeric: tabular-nums; text-align: center;
+  background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 4px 0; }
+.bm-go .bm-field { font-size: .75rem; color: var(--muted); }
+.bm-go .bm-title { font-weight: 700; overflow-wrap: anywhere; }
+.bm-del { font: inherit; background: none; border: 0; color: var(--muted); padding: 0 10px; cursor: pointer; border-radius: 8px; font-size: 1.05rem; }
+.bm-del:hover { color: var(--ink); background: var(--rule); }
+.bm-empty { margin: 14px 12px; color: var(--muted); font-size: .9rem; line-height: 1.7; }
+.bm-toggle { flex: none; align-self: center; margin-right: 8px; width: 2em; height: 2em; display: grid; place-items: center; padding: 0;
+  font-size: 1.05rem; line-height: 1; border-radius: 50%; border: 1px solid var(--rule); background: var(--paper); color: var(--muted); cursor: pointer; }
+.bm-toggle:hover { color: var(--drill); border-color: var(--drill); }
+.bm-toggle[aria-pressed="true"] { color: var(--drill); border-color: var(--drill); background: var(--drill-soft); }
+@media (max-width: 860px) { .bm-btn .bm-label { display: none; } }
 </style>
 </head>
 <body>
@@ -238,6 +264,7 @@ h3.ans-h.flash-t { outline-color: var(--accent); }
   <select id="chsel-a" class="chsel mobile-only" data-book="a" hidden><option value="a-ch1">第1章　数と式</option><option value="a-ch2">第2章　集合と論理</option><option value="a-ch3">第3章　2次関数</option><option value="a-ch4">第4章　図形の性質</option><option value="a-ch5">第5章　図形と計量</option><option value="a-ch6">第6章　順列・組合せ</option><option value="a-ch7">第7章　確率</option><option value="a-ch8">第8章　データの分析</option><option value="a-ch9">第9章　整数の性質</option><option value="a-ans">解答　演習問題の解答</option><option value="a-figs">図一覧（284点）</option></select>
   <label for="chsel-b" class="vh">章を選ぶ（数学Ⅱ・B）</label>
   <select id="chsel-b" class="chsel mobile-only" data-book="b" hidden><option value="b-ch1">第1章　式と証明</option><option value="b-ch2">第2章　複素数と方程式</option><option value="b-ch3">第3章　図形と式</option><option value="b-ch4">第4章　三角関数</option><option value="b-ch5">第5章　指数関数と対数関数</option><option value="b-ch6">第6章　微分法と積分法</option><option value="b-ch7">第7章　数列</option><option value="b-ch8">第8章　ベクトル</option><option value="b-ch9">第9章　統計的な推測</option><option value="b-ans">解答　演習問題の解答</option><option value="b-figs">図一覧（224点）</option></select>
+  <div class="bm-wrap"><button type="button" class="figs-btn bm-btn" id="bmBtn" aria-haspopup="true" aria-expanded="false" aria-controls="bmPanel"><span class="bm-star" aria-hidden="true">★</span><span class="bm-label">ブックマーク</span><span class="bm-n"></span></button><div class="bm-panel" id="bmPanel" role="dialog" aria-label="ブックマーク" hidden></div></div>
   <button type="button" class="figs-btn" id="figsBtn-a" data-book="a" aria-pressed="false" hidden>図一覧</button>
   <button type="button" class="figs-btn" id="figsBtn-b" data-book="b" aria-pressed="false" hidden>図一覧</button>
 </header>
@@ -26229,7 +26256,7 @@ Object.defineProperty(e,"__esModule",{value:!0}),e.mhchemParser=void 0;var r=fun
     if (btn) { show(btn.dataset.ch); setHash(btn.dataset.ch, false); return; }
     var go = e.target.closest('[data-go]');
     if (go) { show(go.dataset.go); setHash(go.dataset.go, false); return; }
-    var fb = e.target.closest('.figs-btn');
+    var fb = e.target.closest('.figs-btn[data-book]');
     if (fb) {
       var B = books[fb.dataset.book];
       var to = B.current === B.figview.id ? (B.lastChapter || B.order[0]) : B.figview.id;
@@ -26251,26 +26278,140 @@ Object.defineProperty(e,"__esModule",{value:!0}),e.mhchemParser=void 0;var r=fun
     openBook(k); books[k].tab.focus(); e.preventDefault();
   });
 
-  // remember the heading the reader is on, per book
+  // remember where the reader is: the heading per book, and the exact block + offset for reopening
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+  function blockIndex(view) {
+    var kids = view.children, y = topbar.offsetHeight, lo = 0, hi = kids.length - 1;
+    if (hi < 0) return -1;
+    while (lo < hi) { var mid = (lo + hi) >> 1; if (kids[mid].getBoundingClientRect().bottom > y) hi = mid; else lo = mid + 1; }
+    return lo;
+  }
+  var restoring = false;
+  function savePos() {
+    if (restoring) return;
+    var B = books[active]; if (!B || !B.current) return;
+    var view = document.getElementById(B.current); if (!view || view.hidden) return;
+    var limit = topbar.offsetHeight + 24, hit = null;
+    var hs = view.querySelectorAll('h2.kiso, h3.ans-h, h4.lbl-e');
+    for (var i = 0; i < hs.length; i++) { if (hs[i].getBoundingClientRect().top <= limit) hit = hs[i]; else break; }
+    lsSet('last.' + B.key, hit ? hit.id : B.current);
+    var bi = blockIndex(view), el = bi >= 0 ? view.children[bi] : null;
+    var off = el && window.scrollY > 0 ? Math.round(el.getBoundingClientRect().top - topbar.offsetHeight) : 0;
+    lsSet('pos', JSON.stringify({ book: B.key, view: B.current, i: window.scrollY > 0 ? bi : -1, off: off, hash: location.hash.slice(1) }));
+  }
+  function restorePos(p) {
+    var view = p && document.getElementById(p.view);
+    if (!view || !view.closest('.book')) return false;
+    restoring = true;
+    show(p.view);
+    var el = p.i >= 0 ? view.children[p.i] : null;
+    if (el) {
+      var align = function () { window.scrollBy(0, el.getBoundingClientRect().top - (topbar.offsetHeight + (p.off || 0))); };
+      align();
+      typesetAround(view, el).then(function () { align(); restoring = false; });
+      // keep the block pinned while the formulas just above it are typeset
+      pendingAnchor = el;
+    } else { restoring = false; }
+    return true;
+  }
   var saveTimer = null;
-  window.addEventListener('scroll', function () {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      var B = books[active]; if (!B || !B.current) return;
-      var view = document.getElementById(B.current);
-      var limit = topbar.offsetHeight + 24, hit = null;
-      var hs = view.querySelectorAll('h2.kiso, h3.ans-h, h4.lbl-e');
-      for (var i = 0; i < hs.length; i++) {
-        if (hs[i].getBoundingClientRect().top <= limit) hit = hs[i]; else break;
-      }
-      lsSet('last.' + B.key, hit ? hit.id : B.current);
-    }, 300);
-  }, { passive: true });
+  window.addEventListener('scroll', function () { clearTimeout(saveTimer); saveTimer = setTimeout(savePos, 300); }, { passive: true });
+  window.addEventListener('pagehide', savePos);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') savePos(); });
+
+
+  // ---- bookmarks (基礎問) ----
+  var BM_KEY = 'bookmarks';
+  var bmBtn = document.getElementById('bmBtn'), bmPanel = document.getElementById('bmPanel'), bmCount = bmBtn.querySelector('.bm-n');
+  function bmLoad() { try { var v = JSON.parse(lsGet(BM_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  var marks = bmLoad().filter(function (id) { return document.getElementById(id); });
+  function bmSave() { lsSet(BM_KEY, JSON.stringify(marks)); }
+  function bmSort() {
+    marks.sort(function (x, y) {
+      if (x[0] !== y[0]) return x < y ? -1 : 1;              // 数学Ⅰ・A, then 数学Ⅱ・B
+      return parseInt(x.slice(3), 10) - parseInt(y.slice(3), 10); // by 基礎問 number
+    });
+  }
+  function bmInfo(id) {
+    var h = document.getElementById(id), sec = h.closest('section.chapter');
+    return { no: h.querySelector('.kiso-no').textContent, field: sec.querySelector('.ch-head h1').textContent,
+             title: h.querySelector('.kiso-t').cloneNode(true) };
+  }
+  function bmRefresh() {
+    bmCount.textContent = marks.length ? marks.length : '';
+    document.querySelectorAll('.bm-toggle').forEach(function (b) {
+      var on = marks.indexOf(b.dataset.bm) >= 0;
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.textContent = on ? '★' : '☆';
+      b.title = on ? 'ブックマークを外す' : 'ブックマークに追加';
+    });
+    if (!bmPanel.hidden) bmRender();
+  }
+  function bmRender() {
+    bmPanel.innerHTML = '';
+    if (!marks.length) {
+      bmPanel.innerHTML = '<p class="bm-empty">まだブックマークはありません。<br>基礎問の番号の横にある ☆ を押すと、ここに追加されます。</p>';
+      return;
+    }
+    ['a', 'b'].forEach(function (k) {
+      var ids = marks.filter(function (id) { return id[0] === k; });
+      if (!ids.length) return;
+      var h = document.createElement('h2'); h.textContent = books[k].tab.textContent; bmPanel.appendChild(h);
+      var ol = document.createElement('ol');
+      ids.forEach(function (id) {
+        var info = bmInfo(id), li = document.createElement('li'); li.className = 'bm-item';
+        var go = document.createElement('button'); go.type = 'button'; go.className = 'bm-go'; go.dataset.bmGo = id;
+        go.innerHTML = '<span class="bm-no"></span><span class="bm-field"></span><span class="bm-title"></span>';
+        go.querySelector('.bm-no').textContent = info.no;
+        go.querySelector('.bm-field').textContent = info.field;
+        go.querySelector('.bm-title').innerHTML = info.title.innerHTML;
+        var del = document.createElement('button'); del.type = 'button'; del.className = 'bm-del'; del.dataset.bmDel = id;
+        del.textContent = '×'; del.setAttribute('aria-label', '基礎問 ' + info.no + ' のブックマークを外す');
+        li.appendChild(go); li.appendChild(del); ol.appendChild(li);
+      });
+      bmPanel.appendChild(ol);
+    });
+    // titles may contain math: typeset the copies (they are new, untypeset elements)
+    var raw = Array.prototype.filter.call(bmPanel.querySelectorAll('.bm-title'), function (e) { return HAS_TEX.test(e.textContent); });
+    if (raw.length) typesetNow(raw);
+  }
+  function bmToggle(id) {
+    var i = marks.indexOf(id);
+    if (i >= 0) marks.splice(i, 1); else { marks.push(id); bmSort(); }
+    bmSave(); bmRefresh();
+  }
+  function bmOpen(open) {
+    bmPanel.hidden = !open;
+    bmBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) bmRender();
+  }
+  // a ☆ button beside every 基礎問 number
+  document.querySelectorAll('section.chapter h2.kiso').forEach(function (h) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'bm-toggle'; b.dataset.bm = h.id;
+    b.setAttribute('aria-label', '基礎問 ' + h.querySelector('.kiso-no').textContent + ' をブックマーク');
+    h.insertBefore(b, h.firstChild);
+  });
+  bmSort(); bmRefresh();
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('.bm-toggle');
+    if (t) { bmToggle(t.dataset.bm); return; }
+    if (e.target.closest('#bmBtn')) { bmOpen(bmPanel.hidden); return; }
+    var g = e.target.closest('[data-bm-go]');
+    if (g) { bmOpen(false); route(g.dataset.bmGo); setHash(g.dataset.bmGo, true); return; }
+    var d = e.target.closest('[data-bm-del]');
+    if (d) { bmToggle(d.dataset.bmDel); return; }
+    if (!bmPanel.hidden && !e.target.closest('#bmPanel')) bmOpen(false);
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !bmPanel.hidden) { bmOpen(false); bmBtn.focus(); } });
+  // another tab of this file changed the bookmarks
+  window.addEventListener('storage', function (e) { if (e.key === LS + BM_KEY) { marks = bmLoad().filter(function (id) { return document.getElementById(id); }); bmSort(); bmRefresh(); } });
 
   setTimeout(function () { typesetNow(Array.prototype.slice.call(document.querySelectorAll('.rail'))); }, 0);
 
+  // reopen where the reader left off, unless the page was opened with a different link (#...)
   var start = (location.hash || '').slice(1);
-  if (!route(start)) {
+  var pos = null; try { pos = JSON.parse(lsGet('pos') || 'null'); } catch (e) {}
+  if (!(pos && (!start || start === pos.hash) && restorePos(pos)) && !route(start)) {
     var k = lsGet('tab');
     if (!books[k]) k = 'a';
     openBook(k);
